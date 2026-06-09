@@ -522,18 +522,19 @@ async function syncAll(){
       apiCall('getViajes'),
       apiCall('getGviaje')
     ]);
-    if(g) DB.gastos = g;
-    if(i) DB.items = i;
-    if(v) DB.viajes = v;
-    if(gv) DB.gviaje = gv;
-    setSyncState('ok');
+    if(Array.isArray(g)) DB.gastos = g;
+    if(Array.isArray(i)) DB.items = i;
+    if(Array.isArray(v)) DB.viajes = v;
+    if(Array.isArray(gv)) DB.gviaje = gv;
+    const synced = [g,i,v,gv].some(x => x !== null);
+    setSyncState(synced ? 'ok' : 'err');
     render();
   }catch(e){ setSyncState('err'); }
 }
 
 function bgSync(action, data){
   apiCall(action, data).then(r=>{
-    if(r!==null) setSyncState('ok');
+    setSyncState(r !== null ? 'ok' : 'err');
   }).catch(()=>setSyncState('err'));
 }
 
