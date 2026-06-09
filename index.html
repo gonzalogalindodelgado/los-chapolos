@@ -506,8 +506,6 @@ function setSyncState(state){ // 'busy','ok','err','off'
 async function syncAll(){
   if(!DB.api){ setSyncState('off'); return; }
   if(_pw > 0){ setTimeout(syncAll, 1000); return; }
-  const msSinceWrite = Date.now() - _lastWrite;
-  if(_lastWrite > 0 && msSinceWrite < 3000){ setTimeout(syncAll, 3000 - msSinceWrite + 500); return; }
   setSyncState('busy');
   try{
     const [g,i,v,gv] = await Promise.all([
