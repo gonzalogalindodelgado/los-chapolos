@@ -525,12 +525,17 @@ async function syncAll(){
   }catch(e){ setSyncState('err'); }
 }
 
-// Mezcla local y remoto por ID: agrega del remoto lo que no está en local
+/// Mezcla local y remoto por ID: agrega nuevos Y actualiza campos de existentes con remoto
 function mergeById(local, remote){
   if(!Array.isArray(remote) || remote.length === 0) return local;
+  const remoteMap = new Map(remote.map(x => [String(x.id), x]));
   const localIds = new Set(local.map(x => String(x.id)));
+  const updated = local.map(x => {
+    const r = remoteMap.get(String(x.id));
+    return r ? Object.assign({}, x, r) : x;
+  });
   const nuevos = remote.filter(x => !localIds.has(String(x.id)));
-  return nuevos.length > 0 ? [...local, ...nuevos] : local;
+  return [...updated, ...nuevos];
 }
 
 let _pw = 0;
