@@ -551,7 +551,7 @@ function fmt(n){
 }
 function fmtDate(s){
   if(!s) return '';
-  const d = new Date(s+'T12:00:00');
+  const d = new Date(String(s).slice(0,10)+'T12:00:00');
   return d.getDate()+' '+MESES[d.getMonth()].slice(0,3);
 }
 function today(){
@@ -594,7 +594,7 @@ function renderBal(bal, period){
 // ── RENDER HOGAR ───────────────────────────
 function renderHogar(){
   const all = DB.gastos.filter(e=>{
-    const d = new Date(e.fecha+'T12:00:00');
+    const d = new Date(String(e.fecha||'').slice(0,10)+'T12:00:00');
     return d.getMonth()===S.mes && d.getFullYear()===S.yr;
   });
   document.getElementById('mnav-name').textContent = MESES[S.mes]+' '+S.yr;
