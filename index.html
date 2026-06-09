@@ -486,7 +486,7 @@ async function apiCall(action, data){
   try{
     const ctrl = new AbortController();
     const tid = setTimeout(()=>ctrl.abort(), 12000);
-    const r = await fetch(url+'?'+qs, {credentials:'omit', redirect:'follow', signal:ctrl.signal});
+    const r = await fetch(url+'?'+qs, {credentials:'omit', redirect:'follow', cache:'no-store', signal:ctrl.signal});
     clearTimeout(tid);
     if(!r.ok) return null;
     const text = await r.text();
@@ -505,7 +505,9 @@ function setSyncState(state){ // 'busy','ok','err','off'
 
 async function syncAll(){
   if(!DB.api){ setSyncState('off'); return; }
-  if(_pw > 0){ setTimeout(syncAll, 1000); return; } // wait for pending writes
+  if(_pw > 0){ setTimeout(syncAll, 1000); return; }
+  const msSinceWrite = Date.now() - _lastWrite;
+  if(_lastWrite > 0 && msSinceWrite < 3000){ setTimeout(syncAll, 3000 - msSinceWrite + 500); return; }
   setSyncState('busy');
   try{
     const [g,i,v,gv] = await Promise.all([
@@ -514,25 +516,28 @@ async function syncAll(){
       apiCall('getViajes'),
       apiCall('getGviaje')
     ]);
-    if(Array.isArray(g)) DB.gastos = g;
-    if(Array.isArray(i)) DB.items = i;
-    if(Array.isArray(v)) DB.viajes = v;
-    if(Array.isArray(gv)) DB.gviaje = gv;
+    // Solo sobreescribir si el Sheet devuelve datos; nunca borrar con array vacío
+    if(Array.isArray(g) && g.length > 0) DB.gastos = g;
+    if(Array.isArray(i) && i.length > 0) DB.items = i;
+    if(Array.isArray(v) && v.length > 0) DB.viajes = v;
+    if(Array.isArray(gv) && gv.length > 0) DB.gviaje = gv;
     const synced = [g,i,v,gv].some(x => x !== null);
     setSyncState(synced ? 'ok' : 'err');
     render();
   }catch(e){ setSyncState('err'); }
 }
 
-let _pw = 0; // pending writes counter
+let _pw = 0;
+let _lastWrite = 0;
 
 function bgSync(action, data){
   _pw++;
+  _lastWrite = Date.now();
   setSyncState('busy');
   apiCall(action, data).then(r=>{
     _pw = Math.max(0, _pw - 1);
     setSyncState(r !== null ? 'ok' : 'err');
-    if(r !== null && _pw === 0) setTimeout(syncAll, 800);
+    if(r !== null && _pw === 0) setTimeout(syncAll, 3000);
   }).catch(()=>{ _pw = Math.max(0, _pw - 1); setSyncState('err'); });
 }
 
