@@ -514,6 +514,7 @@ function setSyncState(state){ // 'busy','ok','err','off'
 
 async function syncAll(){
   if(!DB.api){ setSyncState('off'); return; }
+  if(_pw > 0){ setTimeout(syncAll, 1000); return; } // wait for pending writes
   setSyncState('busy');
   try{
     const [g,i,v,gv] = await Promise.all([
@@ -532,10 +533,16 @@ async function syncAll(){
   }catch(e){ setSyncState('err'); }
 }
 
+let _pw = 0; // pending writes counter
+
 function bgSync(action, data){
+  _pw++;
+  setSyncState('busy');
   apiCall(action, data).then(r=>{
+    _pw = Math.max(0, _pw - 1);
     setSyncState(r !== null ? 'ok' : 'err');
-  }).catch(()=>setSyncState('err'));
+    if(r !== null && _pw === 0) setTimeout(syncAll, 800);
+  }).catch(()=>{ _pw = Math.max(0, _pw - 1); setSyncState('err'); });
 }
 
 // ── UTILS ──────────────────────────────────
