@@ -516,28 +516,33 @@ async function syncAll(){
       apiCall('getViajes'),
       apiCall('getGviaje')
     ]);
-    // Solo sobreescribir si el Sheet devuelve datos; nunca borrar con array vacío
-    if(Array.isArray(g) && g.length > 0) DB.gastos = g;
-    if(Array.isArray(i) && i.length > 0) DB.items = i;
-    if(Array.isArray(v) && v.length > 0) DB.viajes = v;
-    if(Array.isArray(gv) && gv.length > 0) DB.gviaje = gv;
+    // MERGE: agrega items del Sheet que no están en local; nunca borra datos locales
+    if(Array.isArray(g)) DB.gastos = mergeById(DB.gastos, g);
+    if(Array.isArray(i)) DB.items  = mergeById(DB.items,  i);
+    if(Array.isArray(v)) DB.viajes = mergeById(DB.viajes, v);
+    if(Array.isArray(gv)) DB.gviaje = mergeById(DB.gviaje, gv);
     const synced = [g,i,v,gv].some(x => x !== null);
     setSyncState(synced ? 'ok' : 'err');
     render();
   }catch(e){ setSyncState('err'); }
 }
 
+// Mezcla local y remoto por ID: agrega del remoto lo que no está en local
+function mergeById(local, remote){
+  if(!Array.isArray(remote) || remote.length === 0) return local;
+  const localIds = new Set(local.map(x => String(x.id)));
+  const nuevos = remote.filter(x => !localIds.has(String(x.id)));
+  return nuevos.length > 0 ? [...local, ...nuevos] : local;
+}
+
 let _pw = 0;
-let _lastWrite = 0;
 
 function bgSync(action, data){
   _pw++;
-  _lastWrite = Date.now();
   setSyncState('busy');
   apiCall(action, data).then(r=>{
     _pw = Math.max(0, _pw - 1);
     setSyncState(r !== null ? 'ok' : 'err');
-    if(r !== null && _pw === 0) setTimeout(syncAll, 3000);
   }).catch(()=>{ _pw = Math.max(0, _pw - 1); setSyncState('err'); });
 }
 
@@ -927,13 +932,8 @@ window.addEventListener('DOMContentLoaded', ()=>{
   render();
 });
 
-// Sincronizar cada vez que el usuario vuelve a la app
-document.addEventListener('visibilitychange', ()=>{
-  if(!document.hidden && DB.api) syncAll();
-});
-
-// Sincronizar cada 60 segundos mientras la app está abierta
-setInterval(()=>{ if(DB.api && !document.hidden) syncAll(); }, 60000);
+// Sincronizar cada 5 minutos (solo lectura pasiva)
+setInterval(()=>{ if(DB.api && !document.hidden && _pw === 0) syncAll(); }, 300000);
 </script>
 </body>
 </html>
