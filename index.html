@@ -665,7 +665,8 @@ function renderViaje(){
   const all = DB.gviaje.filter(e=>e.viaje===S.viaje);
   const sorted = [...all].sort((a,b)=>new Date(b.fecha)-new Date(a.fecha));
   let html = renderBal(calcBal(all), S.viaje);
-  html += `<div class="sh"><div class="sh-title">Gastos del viaje</div></div>`;
+  html += `<div class="sh"><div class="sh-title">Gastos del viaje</div>
+    <button class="sh-btn" onclick="confirmDeleteTrip('${S.viaje}')">Eliminar viaje</button></div>`;
   html += sorted.length
     ? sorted.map(e=>renderEI(e,'deleteGastoViaje')).join('')
     : `<div class="empty"><div class="empty-i">💸</div><p>Sin gastos todavía.<br>Toca + para agregar.</p></div>`;
@@ -840,6 +841,15 @@ function deleteGastoViaje(id){
   if(!confirm('¿Eliminar gasto?')) return;
   DB.gviaje = DB.gviaje.filter(g=>g.id!==id);
   bgSync('deleteGviaje',{id});
+  renderViaje();
+}
+
+function confirmDeleteTrip(nombre){
+  if(!confirm('¿Eliminar el viaje "'+nombre+'" y todos sus gastos? Esta acción no se puede deshacer.')) return;
+  DB.viajes = (DB.viajes||[]).filter(t=>t!==nombre);
+  DB.gviaje = (DB.gviaje||[]).filter(g=>g.viaje!==nombre);
+  if(S.viaje===nombre) S.viaje = null;
+  bgSync('deleteViaje',{nombre});
   renderViaje();
 }
 
