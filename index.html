@@ -518,10 +518,9 @@ async function syncAll(){
     if(Array.isArray(g)) DB.gastos = mergeById(DB.gastos, g);
     if(Array.isArray(i)) DB.items  = mergeById(DB.items,  i);
     if(Array.isArray(v)){
-      // viajes es array de strings, no objetos — usar set-union
-      const set = new Set((DB.viajes||[]).filter(t=>typeof t==='string'));
-      v.forEach(t=>{ if(t && typeof t==='string') set.add(t); });
-      DB.viajes = Array.from(set);
+      // El Sheet es fuente de verdad: reemplazar local con remoto
+      // (syncAll solo corre cuando _pw===0, así que todos los writes ya completaron)
+      DB.viajes = v.filter(t=>typeof t==='string' && t);
     }
     if(Array.isArray(gv)){
       // propagar también eliminaciones: el Sheet es fuente de verdad para gviaje
