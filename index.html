@@ -517,8 +517,18 @@ async function syncAll(){
     // MERGE: agrega items del Sheet que no están en local; nunca borra datos locales
     if(Array.isArray(g)) DB.gastos = mergeById(DB.gastos, g);
     if(Array.isArray(i)) DB.items  = mergeById(DB.items,  i);
-    if(Array.isArray(v)) DB.viajes = mergeById(DB.viajes, v);
-    if(Array.isArray(gv)) DB.gviaje = mergeById(DB.gviaje, gv);
+    if(Array.isArray(v)){
+      // viajes es array de strings, no objetos — usar set-union
+      const set = new Set((DB.viajes||[]).filter(t=>typeof t==='string'));
+      v.forEach(t=>{ if(t && typeof t==='string') set.add(t); });
+      DB.viajes = Array.from(set);
+    }
+    if(Array.isArray(gv)){
+      // propagar también eliminaciones: el Sheet es fuente de verdad para gviaje
+      const remoteIds = new Set(gv.map(x=>String(x.id)));
+      const localSinBorrados = DB.gviaje.filter(x=>remoteIds.has(String(x.id)));
+      DB.gviaje = mergeById(localSinBorrados, gv);
+    }
     const synced = [g,i,v,gv].some(x => x !== null);
     setSyncState(synced ? 'ok' : 'err');
     render();
@@ -641,7 +651,7 @@ function renderSI(i){
 
 // ── RENDER VIAJE ───────────────────────────
 function renderViaje(){
-  const viajes = DB.viajes;
+  const viajes = (DB.viajes||[]).filter(t=>typeof t==='string');
   const chips = viajes.map(v=>
     `<div class="tc ${v===S.viaje?'on':''}" onclick="selectTrip('${v}')">${v}</div>`
   ).join('') + `<div class="tc add" onclick="openNewTrip()">+ Nuevo</div>`;
@@ -819,7 +829,7 @@ function openNewTrip(){
 function saveTrip(){
   const nombre = document.getElementById('t-nombre').value.trim();
   if(!nombre) return;
-  const arr = DB.viajes;
+  const arr = (DB.viajes||[]).filter(t=>typeof t==='string');
   if(!arr.includes(nombre)){ arr.push(nombre); DB.viajes=arr; bgSync('addViaje',{nombre}); }
   S.viaje = nombre;
   closeModal('m-trip');
