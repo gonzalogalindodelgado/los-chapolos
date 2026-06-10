@@ -651,6 +651,7 @@ function renderSI(i){
 // ── RENDER VIAJE ───────────────────────────
 function renderViaje(){
   const viajes = (DB.viajes||[]).filter(t=>typeof t==='string');
+  if(S.viaje && !viajes.includes(S.viaje)) S.viaje = null;
   const chips = viajes.map(v=>
     `<div class="tc ${v===S.viaje?'on':''}" onclick="selectTrip('${v}')">${v}</div>`
   ).join('') + `<div class="tc add" onclick="openNewTrip()">+ Nuevo</div>`;
