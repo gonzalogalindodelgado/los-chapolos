@@ -49,7 +49,7 @@
       padding-top:calc(14px + env(safe-area-inset-top));
     }
     .hlogo{display:flex;align-items:center;gap:10px}
-    .hlogo svg{width:38px;height:38px;flex-shrink:0}
+    .hlogo svg{width:88px;height:50px;flex-shrink:0}
     .htitles{}
     .htitle{
       font-size:19px;font-weight:800;letter-spacing:-0.4px;
@@ -278,30 +278,43 @@
 <!-- HEADER -->
 <header class="header">
   <div class="hlogo">
-    <svg viewBox="0 0 50 68" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <!-- Tail shaft -->
-      <line x1="25" y1="51" x2="25" y2="62" stroke="#00B4D8" stroke-width="2.5" stroke-linecap="round"/>
-      <!-- Racket tips -->
-      <ellipse cx="20" cy="65" rx="5" ry="2.8" fill="#00B4D8" opacity=".9"/>
-      <ellipse cx="30" cy="65" rx="5" ry="2.8" fill="#00B4D8" opacity=".9"/>
-      <!-- Body -->
-      <ellipse cx="25" cy="37" rx="12" ry="15" fill="#0077A8"/>
-      <!-- Belly warm accent -->
-      <ellipse cx="26" cy="40" rx="8" ry="10" fill="#D4845A" opacity=".55"/>
-      <!-- Wing edge -->
-      <ellipse cx="18" cy="36" rx="5" ry="9" fill="#005A80" opacity=".7"/>
-      <!-- Head -->
-      <circle cx="25" cy="19" r="11" fill="#0090B5"/>
-      <!-- Crown blue sheen -->
-      <ellipse cx="22" cy="13" rx="6" ry="4" fill="#48CAE4" opacity=".55"/>
-      <!-- Black mask -->
-      <path d="M13.5 19.5 Q18 24 25 24 Q32 24 36.5 19.5 Q33 14 25 14 Q17 14 13.5 19.5Z" fill="#09172A" opacity=".7"/>
-      <!-- Beak -->
-      <path d="M33 17 L43 15 L33 21Z" fill="#7DC8E0"/>
-      <!-- Eye -->
-      <circle cx="29.5" cy="17.5" r="2.5" fill="white" opacity=".95"/>
-      <circle cx="30" cy="17.5" r="1.2" fill="#09172A"/>
-      <circle cx="30.5" cy="17" r=".5" fill="white"/>
+    <svg viewBox="245 60 190 102" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <!-- MACHO (izq, mirando derecha) -->
+      <path d="M288,132 Q269,157 254,184" stroke="#0e7a5f" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+      <path d="M285,134 Q264,161 247,188" stroke="#3dd6c0" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+      <ellipse cx="243" cy="194" rx="7" ry="11" fill="#3dd6c0" transform="rotate(-15,243,194)"/>
+      <ellipse cx="254" cy="192" rx="6" ry="9" fill="#0e7a5f" transform="rotate(-6,254,192)"/>
+      <ellipse cx="296" cy="107" rx="20" ry="26" fill="#0e7a5f"/>
+      <ellipse cx="297" cy="115" rx="12" ry="17" fill="#c4602a"/>
+      <ellipse cx="278" cy="104" rx="8" ry="15" fill="#085c45" transform="rotate(-14,278,104)"/>
+      <circle cx="296" cy="77" r="16" fill="#0e7a5f"/>
+      <ellipse cx="296" cy="77" rx="16" ry="8" fill="#111"/>
+      <path d="M280,69 Q296,59 312,69" stroke="#3dd6c0" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+      <circle cx="305" cy="75" r="3.5" fill="#e8a020"/>
+      <circle cx="306" cy="75" r="1.8" fill="#111"/>
+      <circle cx="306.5" cy="74" r="0.8" fill="white"/>
+      <path d="M312,73 L328,71 L312,79" fill="#222"/>
+      <line x1="288" y1="131" x2="282" y2="148" stroke="#555" stroke-width="2"/>
+      <line x1="304" y1="131" x2="310" y2="148" stroke="#555" stroke-width="2"/>
+      <!-- HEMBRA (der, mirando izquierda) -->
+      <path d="M392,133 Q411,158 426,185" stroke="#1a8a6e" stroke-width="3" fill="none" stroke-linecap="round"/>
+      <path d="M395,135 Q416,162 434,189" stroke="#3dd6c0" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+      <ellipse cx="437" cy="195" rx="7" ry="11" fill="#3dd6c0" transform="rotate(15,437,195)"/>
+      <ellipse cx="426" cy="193" rx="6" ry="9" fill="#1a8a6e" transform="rotate(6,426,193)"/>
+      <ellipse cx="384" cy="109" rx="18" ry="24" fill="#1a8a6e"/>
+      <ellipse cx="382" cy="117" rx="11" ry="16" fill="#d4804a"/>
+      <ellipse cx="402" cy="107" rx="7" ry="14" fill="#0a6e55" transform="rotate(14,402,107)"/>
+      <circle cx="384" cy="79" r="15" fill="#1a8a6e"/>
+      <ellipse cx="384" cy="79" rx="15" ry="7.5" fill="#111"/>
+      <path d="M369,71 Q384,62 399,71" stroke="#3dd6c0" stroke-width="3" fill="none" stroke-linecap="round"/>
+      <circle cx="375" cy="77" r="3" fill="#e8a020"/>
+      <circle cx="374" cy="77" r="1.5" fill="#111"/>
+      <circle cx="373.5" cy="76" r="0.7" fill="white"/>
+      <path d="M369,75 L352,73 L369,81" fill="#222"/>
+      <line x1="376" y1="131" x2="370" y2="148" stroke="#555" stroke-width="2"/>
+      <line x1="392" y1="131" x2="398" y2="148" stroke="#555" stroke-width="2"/>
+      <!-- RAMA -->
+      <path d="M200,153 Q340,143 480,151" stroke="#7a5c3a" stroke-width="5" fill="none" stroke-linecap="round"/>
     </svg>
     <div class="htitles">
       <div class="htitle">Los Chapolos</div>
