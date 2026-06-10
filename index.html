@@ -147,6 +147,8 @@
     .ei-amt{font-size:15px;font-weight:800}
     .btn-del{background:none;border:none;color:var(--text3);cursor:pointer;font-size:19px;line-height:1;padding:2px 4px;border-radius:6px;transition:color .2s}
     .btn-del:active{color:var(--red)}
+    .btn-edit{background:none;border:none;color:var(--text3);cursor:pointer;font-size:14px;line-height:1;padding:2px 5px;border-radius:6px;transition:color .2s}
+    .btn-edit:active{color:var(--teal)}
 
     /* ── SHOPPING ITEMS ── */
     .si{
@@ -699,7 +701,10 @@ function renderEI(e, delFn){
     </div>
     <div class="ei-right">
       <div class="ei-amt">$${fmt(e.monto)}</div>
-      <button class="btn-del" onclick="${delFn}('${e.id}')">×</button>
+      <div style="display:flex;gap:2px">
+        <button class="btn-edit" onclick="editGasto('${e.id}','${delFn==='deleteGasto'?'hogar':'viaje'}')">✎</button>
+        <button class="btn-del" onclick="${delFn}('${e.id}')">×</button>
+      </div>
     </div>
   </div>`;
 }
@@ -739,16 +744,24 @@ function fabClick(){
   }
 }
 
-function openGastoModal(ctx){
-  document.getElementById('m-gasto-title').textContent = ctx==='viaje' ? 'Gasto del viaje' : 'Nuevo gasto';
+function openGastoModal(ctx, gasto=null){
+  const editing = !!gasto;
+  document.getElementById('m-gasto-title').textContent = editing ? 'Editar gasto' : (ctx==='viaje' ? 'Gasto del viaje' : 'Nuevo gasto');
   document.getElementById('g-cat-wrap').style.display = ctx==='viaje' ? 'none' : '';
-  document.getElementById('g-desc').value='';
-  document.getElementById('g-monto').value='';
-  document.getElementById('g-fecha').value = today();
-  setPayer('G');
+  document.getElementById('g-desc').value = editing ? gasto.desc : '';
+  document.getElementById('g-monto').value = editing ? gasto.monto : '';
+  document.getElementById('g-fecha').value = editing ? String(gasto.fecha).slice(0,10) : today();
+  if(editing && ctx!=='viaje') document.getElementById('g-cat').value = gasto.cat||'Otro';
+  setPayer(editing ? gasto.who : 'G');
   document.getElementById('m-gasto').dataset.ctx = ctx;
+  document.getElementById('m-gasto').dataset.editId = editing ? gasto.id : '';
   document.getElementById('m-gasto').classList.remove('hide');
   setTimeout(()=>document.getElementById('g-desc').focus(),100);
+}
+
+function editGasto(id, ctx){
+  const gasto = ctx==='viaje' ? DB.gviaje.find(g=>g.id===id) : DB.gastos.find(g=>g.id===id);
+  if(gasto) openGastoModal(ctx, gasto);
 }
 
 function setPayer(who){
@@ -763,19 +776,36 @@ function saveGasto(){
   const fecha = document.getElementById('g-fecha').value;
   const cat = document.getElementById('g-cat').value;
   const ctx = document.getElementById('m-gasto').dataset.ctx;
+  const editId = document.getElementById('m-gasto').dataset.editId;
   if(!desc||!monto||!fecha){ alert('Completa todos los campos'); return; }
 
-  const gasto = { id: Date.now().toString(), desc, monto, fecha, who: S.payer,
-                  cat: ctx==='viaje' ? '' : cat };
-  if(ctx==='viaje'){
-    gasto.viaje = S.viaje;
-    const arr = DB.gviaje; arr.push(gasto); DB.gviaje = arr;
-    bgSync('addGviaje', gasto);
-    renderViaje();
+  if(editId){
+    // ── MODO EDICIÓN ──
+    if(ctx==='viaje'){
+      const idx = DB.gviaje.findIndex(g=>g.id===editId);
+      if(idx>=0){ DB.gviaje[idx] = {...DB.gviaje[idx], desc, monto, fecha, who:S.payer}; DB.gviaje=[...DB.gviaje]; }
+      bgSync('updateGviaje', {id:editId, desc, monto, fecha, who:S.payer});
+      renderViaje();
+    } else {
+      const idx = DB.gastos.findIndex(g=>g.id===editId);
+      if(idx>=0){ DB.gastos[idx] = {...DB.gastos[idx], desc, monto, fecha, cat, who:S.payer}; DB.gastos=[...DB.gastos]; }
+      bgSync('updateGasto', {id:editId, desc, monto, fecha, cat, who:S.payer});
+      renderHogar();
+    }
   } else {
-    const arr = DB.gastos; arr.push(gasto); DB.gastos = arr;
-    bgSync('addGasto', gasto);
-    renderHogar();
+    // ── MODO CREACIÓN ──
+    const gasto = { id: Date.now().toString(), desc, monto, fecha, who: S.payer,
+                    cat: ctx==='viaje' ? '' : cat };
+    if(ctx==='viaje'){
+      gasto.viaje = S.viaje;
+      const arr = DB.gviaje; arr.push(gasto); DB.gviaje = arr;
+      bgSync('addGviaje', gasto);
+      renderViaje();
+    } else {
+      const arr = DB.gastos; arr.push(gasto); DB.gastos = arr;
+      bgSync('addGasto', gasto);
+      renderHogar();
+    }
   }
   closeModal('m-gasto');
 }
