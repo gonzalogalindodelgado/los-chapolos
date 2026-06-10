@@ -782,13 +782,15 @@ function saveGasto(){
   if(editId){
     // ── MODO EDICIÓN ──
     if(ctx==='viaje'){
-      const idx = DB.gviaje.findIndex(g=>g.id===editId);
-      if(idx>=0){ DB.gviaje[idx] = {...DB.gviaje[idx], desc, monto, fecha, who:S.payer}; DB.gviaje=[...DB.gviaje]; }
+      const arr = DB.gviaje;
+      const idx = arr.findIndex(g=>g.id===editId);
+      if(idx>=0){ arr[idx] = {...arr[idx], desc, monto, fecha, who:S.payer}; DB.gviaje = arr; }
       bgSync('updateGviaje', {id:editId, desc, monto, fecha, who:S.payer});
       renderViaje();
     } else {
-      const idx = DB.gastos.findIndex(g=>g.id===editId);
-      if(idx>=0){ DB.gastos[idx] = {...DB.gastos[idx], desc, monto, fecha, cat, who:S.payer}; DB.gastos=[...DB.gastos]; }
+      const arr = DB.gastos;
+      const idx = arr.findIndex(g=>g.id===editId);
+      if(idx>=0){ arr[idx] = {...arr[idx], desc, monto, fecha, cat, who:S.payer}; DB.gastos = arr; }
       bgSync('updateGasto', {id:editId, desc, monto, fecha, cat, who:S.payer});
       renderHogar();
     }
